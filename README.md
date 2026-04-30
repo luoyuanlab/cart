@@ -6,6 +6,9 @@ Single-cell transcriptomics provides unprecedented resolution for characterizing
 <p align="center">  <img src="https://github.com/luoyuanlab/cart/blob/main/img_folder/Figure1.png" height="800px" />  </p>  <br />
 
 ## **System requirements**
+### **Hardware requirements**
+gANCHOR package requires a standard computer with optional GPU to support the in-memory operations.
+
 ### **OS Requirements**
 The codes have been tested on the following systems:
 * Linux: CentOS Linux 7
