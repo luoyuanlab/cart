@@ -6,7 +6,7 @@ Single-cell transcriptomics provides unprecedented resolution for characterizing
 
 ## **System requirements**
 ### **Hardware requirements**
-gANCHOR package requires a standard computer with optional GPU to support the in-memory operations.
+gANCHOR requires a standard computer with optional GPU to support the in-memory operations.
 
 ### **OS Requirements**
 The codes have been tested on the following systems:
