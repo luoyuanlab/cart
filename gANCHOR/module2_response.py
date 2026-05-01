@@ -183,13 +183,11 @@ def response_train(model, optimizer, m, train_patients, valid_patients, test_pat
         if val_loss.item() < best_val_loss:
             best_val_loss = val_loss.item()
             patience_counter = 0
-            best_test_pa_pred = test_pa_pred.clone().detach()
-            best_test_score = running_score_test.copy()
         else:
             patience_counter += 1
         
         if patience_counter >= patience:
             break
 
-    return (running_loss_tr, running_loss_val, running_loss_test, running_score_tr, running_score_val, running_score_test, tr_pa_pred.detach().cpu(), val_pa_pred.detach().cpu(), test_pa_pred.detach().cpu(), best_test_pa_pred.cpu(), tr_pa_GT.detach().cpu(), 
+    return (running_loss_tr, running_loss_val, running_loss_test, tr_pa_pred.detach().cpu(), val_pa_pred.detach().cpu(), test_pa_pred.detach().cpu(), tr_pa_GT.detach().cpu(), 
             val_pa_GT.detach().cpu(), test_pa_GT.detach().cpu(), tr_pa_cell_weight.detach().cpu(), val_pa_cell_weight.detach().cpu(), test_pa_cell_weight.detach().cpu(), epoch, copy.deepcopy(model.state_dict()))
