@@ -122,7 +122,7 @@ class pretrain_tf(nn.Module):
                  data_yuniques,
                  n_input_gene,
                  n_hid,  
-                 combined_type: str = 'sum', ## "sum", "multiplicative"
+                 combined_type: str = 'sum',
                  dropout=0.5, 
                  fn=None, 
                  seed=0, 
@@ -214,7 +214,6 @@ class pretrain_tf(nn.Module):
                                          ]))
         
         
-        
         self.grad_reverse_discriminator = AdversarialDiscriminator(sg_hid, n_cls=len(data_yuniques), reverse_grad=True)
 
         self.metric = metric
@@ -276,16 +275,13 @@ class pretrain_tf(nn.Module):
         
         sgs, pathway_scores, gene_scores = self.tfe(sgs, self.H)
         
-        #del sgs_exp
-        #gc.collect()
-        
         return sgs, xn, xe, pathway_scores, gene_scores 
     
     
     
     def forward_pretrain(self, x_nfts, xe, sgs, data_batch_ids, zero_exp_pos):
-        
-        x_gene, xno, xeo, _, _ = self.encode(x_nfts, xe, sgs) ## x_gene, xno, xeo: [cells, genes, n_hid], [n_node, n_hid], [n_edge, n_hid] 
+        ## x_gene, xno, xeo: [cells, genes, n_hid], [n_node, n_hid], [n_edge, n_hid]
+        x_gene, xno, xeo, _, _ = self.encode(x_nfts, xe, sgs)  
         if self.cell_pooling == 'mean':
             masked_x_gene = x_gene * zero_exp_pos.unsqueeze(-1)
             sum_non_zero = masked_x_gene.sum(axis=1)
@@ -310,10 +306,6 @@ class pretrain_tf(nn.Module):
         type_prob = self.cl_type_fc(x_cell)            
 
         gene_preds = self.gene_exp_fc(x_gene).squeeze()
-        
-        #if self.cell_pooling == 'attention':
-        #    del attention_weights
-        #    gc.collect()
         
         return type_prob, gene_preds, batch_prob, x_gene, x_cell, xno, xeo
         
@@ -346,8 +338,9 @@ class pretrain_tf(nn.Module):
         loss_list = []
         for epoch in range(num_epochs):
             if epoch % print_freq == 0:
-                print('-' * 20)
-                print(f'Epoch {epoch}/{num_epochs - 1}')
+                print('-' * 30, end='')
+                print(f'Epoch {epoch}/{num_epochs - 1}', end='')
+                print('-' * 30)
             
             ## training step
             self.train()
@@ -360,8 +353,8 @@ class pretrain_tf(nn.Module):
             y_phase = torch.Tensor().to(device)
             for idx in dataloader_train_idx:
                 i += 1
-                if i%1000 == 0:
-                    print("{}".format(i), end=" ")
+                #if i%1000 == 0:
+                #    print("{}".format(i), end=" ")
                 
                 try:
                     sub_sgs = torch.Tensor(sgs[np.array(idx).tolist()].X.todense()).to(device)
@@ -382,15 +375,15 @@ class pretrain_tf(nn.Module):
                 if type_label_mask.sum() > 0:
                     loss1 = type_cls_loss(type_prob[type_label_mask], y[idx][type_label_mask])
                 else:
-                    loss1 = torch.tensor(0)
+                    loss1 = torch.tensor(0, device=device)
                 
                 sub_zero_exp_pos[sub_zero_exp_pos != 0] = nonzero_loss_weights
                 loss2 = exp_pred_loss(gene_preds, sub_sgs, sub_zero_exp_pos)
                 loss3 = batch_cls_loss(batch_prob, sub_data_batch_ids)
                 loss = (self.w_loss1*loss1 + self.w_loss2*loss2 + self.w_loss3*loss3) / (self.w_loss1 + self.w_loss2 + self.w_loss3)
                 
-                if i%1000 == 0:
-                    print(loss1.item(), loss2.item(), loss3.item(), end="\t")
+                #if i%1000 == 0:
+                #    print(loss1.item(), loss2.item(), loss3.item(), end="\t")
                 running_loss1 += loss1
                 running_loss2 += loss2
                 running_loss3 += loss3
@@ -454,8 +447,6 @@ class pretrain_tf(nn.Module):
                 y_phase = torch.Tensor().to(device)
                 for idx in dataloader_val_idx:
                     i += 1
-                    #if i%1000 == 0:
-                    #    print("{}".format(i),end=" ")
 
                     try:
                         sub_sgs = torch.Tensor(sgs[np.array(idx).tolist()].X.todense()).to(device)
@@ -472,15 +463,13 @@ class pretrain_tf(nn.Module):
                     if type_label_mask.sum() > 0:
                         loss1 = type_cls_loss(type_prob[type_label_mask], y[idx][type_label_mask])
                     else:
-                        loss1 = torch.tensor(0)
+                        loss1 = torch.tensor(0, device=device)
 
                     sub_zero_exp_pos[sub_zero_exp_pos != 0] = nonzero_loss_weights
                     loss2 = exp_pred_loss(gene_preds, sub_sgs, sub_zero_exp_pos)
                     loss3 = batch_cls_loss(batch_prob, sub_data_batch_ids)
                     loss = (self.w_loss1*loss1 + self.w_loss2*loss2 + self.w_loss3*loss3) / (self.w_loss1 + self.w_loss2 + self.w_loss3)
 
-                    #if i%1000 == 0:
-                    #    print(loss1.item(), loss2.item(), loss3.item(), end=" ")
                     running_loss1 += loss1
                     running_loss2 += loss2
                     running_loss3 += loss3
@@ -560,8 +549,6 @@ class pretrain_tf(nn.Module):
                     i = 0
                     for idx in dataloader_test_idx:
                         i += 1
-                        #if i%1000 == 0:
-                        #    print("{}".format(i),end=" ")
 
                         try:
                             sub_sgs = torch.Tensor(sgs[np.array(idx).tolist()].X.todense()).to(device)
@@ -577,7 +564,7 @@ class pretrain_tf(nn.Module):
                         if type_label_mask.sum() > 0:
                             loss1 = type_cls_loss(type_prob[type_label_mask], y[idx][type_label_mask])
                         else:
-                            loss1 = torch.tensor(0)
+                            loss1 = torch.tensor(0, device=device)
                         
                         sub_zero_exp_pos[sub_zero_exp_pos != 0] = nonzero_loss_weights
                         loss2 = exp_pred_loss(gene_preds, sub_sgs, sub_zero_exp_pos)
@@ -681,16 +668,12 @@ class pretrain_tf(nn.Module):
         return self
     
     
-
     def predict_pretrain(self, x, xe, sgs, data_batch_ids, zero_exp_pos, grad_need=False):   
         self.eval()  
         
         with torch.no_grad():
             type_prob, gene_preds, batch_prob, x_gene, x_cell, xno, xeo = self.forward_pretrain(x, xe, sgs, data_batch_ids, zero_exp_pos)
             _, type_preds = torch.max(type_prob, 1)
-            
-        #del xno, xeo
-        #gc.collect()
 
         return type_preds, type_prob, gene_preds, batch_prob, x_gene[:,:,:x_gene.shape[2]//2], x_cell
 

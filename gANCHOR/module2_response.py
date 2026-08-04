@@ -97,17 +97,14 @@ def response_train(model, optimizer, m, train_patients, valid_patients, test_pat
     patient_cell_idx_dict = {}
     for i in range(len(train_patients)):
         pa_id = str(train_patients[i])
-        #patient_cell_idx_dict[pa_id] = m.obs.loc[m.obs['patient'] == pa_id].index.tolist()
         patient_cell_idx_dict[pa_id] = m.obs.loc[(m.obs['patient'] == pa_id) & (m.obs['response_pick'] == 'pick')].index.tolist()
         patient_response_dict[pa_id] = 1 if m.obs[m.obs['patient'] == pa_id].Response.values[0] == 'R' else 0
     for i in range(len(valid_patients)):
         pa_id = str(valid_patients[i])
-        #patient_cell_idx_dict[pa_id] = m.obs.loc[m.obs['patient'] == pa_id].index.tolist()
         patient_cell_idx_dict[pa_id] = m.obs.loc[(m.obs['patient'] == pa_id) & (m.obs['response_pick'] == 'pick')].index.tolist()
         patient_response_dict[pa_id] = 1 if m.obs[m.obs['patient'] == pa_id].Response.values[0] == 'R' else 0
     for i in range(len(test_patients)):
         pa_id = str(test_patients[i])
-        #patient_cell_idx_dict[pa_id] = m.obs.loc[m.obs['patient'] == pa_id].index.tolist()
         patient_cell_idx_dict[pa_id] = m.obs.loc[(m.obs['patient'] == pa_id) & (m.obs['response_pick'] == 'pick')].index.tolist()
         patient_response_dict[pa_id] = 1 if m.obs[m.obs['patient'] == pa_id].Response.values[0] == 'R' else 0
     
@@ -190,4 +187,4 @@ def response_train(model, optimizer, m, train_patients, valid_patients, test_pat
             break
 
     return (running_loss_tr, running_loss_val, running_loss_test, tr_pa_pred.detach().cpu(), val_pa_pred.detach().cpu(), test_pa_pred.detach().cpu(), tr_pa_GT.detach().cpu(), 
-            val_pa_GT.detach().cpu(), test_pa_GT.detach().cpu(), tr_pa_cell_weight.detach().cpu(), val_pa_cell_weight.detach().cpu(), test_pa_cell_weight.detach().cpu(), epoch, copy.deepcopy(model.state_dict()))
+            val_pa_GT.detach().cpu(), test_pa_GT.detach().cpu(), tr_pa_cell_weight.detach().cpu(), val_pa_cell_weight.detach().cpu(), test_pa_cell_weight.detach().cpu(), epoch)#, copy.deepcopy(model.state_dict()))
