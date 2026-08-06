@@ -416,5 +416,5 @@ def response_train(
         if patience_counter >= patience:
             break
 
-    return (running_loss_tr, running_loss_val, running_loss_test, tr_pa_pred.detach().cpu(), val_pa_pred.detach().cpu(), test_pa_pred.detach().cpu(), tr_pa_GT.detach().cpu(), 
-            val_pa_GT.detach().cpu(), test_pa_GT.detach().cpu(), tr_pa_cell_weight.detach().cpu(), val_pa_cell_weight.detach().cpu(), test_pa_cell_weight.detach().cpu(), epoch)#, copy.deepcopy(model.state_dict()))
+    return (tr_pa_pred.detach().cpu(), val_pa_pred.detach().cpu(), test_pa_pred.detach().cpu(), tr_pa_GT.detach().cpu(), val_pa_GT.detach().cpu(), test_pa_GT.detach().cpu(), 
+            tr_pa_cell_weight.detach().cpu(), val_pa_cell_weight.detach().cpu(), test_pa_cell_weight.detach().cpu(), epoch)
